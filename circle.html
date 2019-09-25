@@ -5,7 +5,7 @@
     </head>
 <body>
 
-<h1>WebGL 2D Blob Example</h1>
+<h1>Rise N' Shine (10 Points)</h1>
 
 <canvas id="MainGLCanvas" style="border: none;" width="600" height="600"></canvas>
 
@@ -22,7 +22,7 @@
     }
     let gl = glcanvas.gl;
     let circleShader = getShaderProgram(gl, "circle");
-    circleShader.uCenterUniform = gl.getUniformLocation(circleShader, "uCenter");
+    circleShader.uTimeUniform = gl.getUniformLocation(circleShader, "uTime");
     circleShader.uRadiusUniform = gl.getUniformLocation(circleShader, "uRadius");
     positionLocation = gl.getAttribLocation(circleShader, "a_position");
     gl.enableVertexAttribArray(positionLocation);
@@ -48,14 +48,19 @@
     indexBuffer.numItems = 6;
 
     // Setup uniforms that will change at each frame
-    let center = new Float32Array([0, 0]);
+    let time = 0.0;
     let radius = 0.2;
+    let thisTime = (new Date()).getTime();
+    let lastTime = thisTime;
 
     function render() {
         glcanvas.gl.useProgram(circleShader);
 
         // Step 1: Setup uniform variables that are sent to the shaders
-        gl.uniform2fv(circleShader.uCenterUniform, center);
+        thisTime = (new Date()).getTime();
+        time += (thisTime - lastTime)/1000.0;
+        lastTime = thisTime;
+        gl.uniform1f(circleShader.uTimeUniform, time);
         gl.uniform1f(circleShader.uRadiusUniform, radius);
 
         // Step 2: Bind vertex and index buffers to draw two triangles
@@ -65,8 +70,6 @@
         gl.drawElements(gl.TRIANGLES, indexBuffer.numItems, gl.UNSIGNED_SHORT, 0);
 
         // Step 3: Keep the animation loop going
-        //center[0] += 0.001;
-        //radius += 0.001;
         requestAnimationFrame(render);
     }
 
