@@ -1,76 +1,19 @@
 <html>
     <head>
+        <script src="jquery-3.5.1.min.js"></script>
         <script src="shaders.js"></script>
+        <script src="triangle.js"></script>
         <meta charset="utf-8" />
     </head>
 <body>
 
-<h1> Basic WebGL Triangle Example </h1>
+<h1>Basic WebGL Triangle Example</h1>
 
 <canvas id="MainGLCanvas" style="border: none;" width="600" height="600"></canvas>
 
 <script>
-    var glcanvas = document.getElementById("MainGLCanvas");
-    glcanvas.addEventListener("contextmenu", function(e){ e.stopPropagation(); e.preventDefault(); return false; }); //Need this to disable the menu that pops up on right clicking
-
-    try {
-        glcanvas.gl = glcanvas.getContext("webgl");
-        glcanvas.gl.viewportWidth = glcanvas.width;
-        glcanvas.gl.viewportHeight = glcanvas.height;
-    } catch (e) {
-        console.log(e);
-    }
-    let gl = glcanvas.gl;
-    let triShader = getShaderProgram(gl, "triangle");
-    positionLocation = gl.getAttribLocation(triShader, "a_position");
-    gl.enableVertexAttribArray(positionLocation);
-    colorLocation = gl.getAttribLocation(triShader, "a_color");
-    gl.enableVertexAttribArray(colorLocation);
-    
-
-    // Setup position and color buffers
-    const positionBuffer = gl.createBuffer();
-    const positions = new Float32Array([-1.0,  1.0,
-                                        1.0,  1.0,
-                                        -1.0, -1.0]);
-    gl.bindBuffer(gl.ARRAY_BUFFER, positionBuffer);
-    gl.bufferData(gl.ARRAY_BUFFER, positions, gl.STATIC_DRAW);
-    gl.vertexAttribPointer(positionLocation, 2, gl.FLOAT, false, 0, 0);
-
-    const colorBuffer = gl.createBuffer();
-    const colors = new Float32Array([1.0, 0.0, 0.0,
-                                     0.0, 1.0, 0.0,
-                                     0.0, 0.0, 1.0]);
-    gl.bindBuffer(gl.ARRAY_BUFFER, colorBuffer);
-    gl.bufferData(gl.ARRAY_BUFFER, colors, gl.STATIC_DRAW);
-    gl.vertexAttribPointer(colorLocation, 3, gl.FLOAT, false, 0, 0);
-
-    // Setup a single triangle connecting the vertices so that there
-    // is a solid shaded region
-    const indexBuffer = gl.createBuffer();
-    gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, indexBuffer);
-    const tris = new Uint16Array([0, 1, 2]);
-    gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, tris, gl.STATIC_DRAW);
-    indexBuffer.itemSize = 1;
-    indexBuffer.numItems = 3;
-
-    function render() {
-        glcanvas.gl.useProgram(triShader);
-
-        //  Bind color, vertex, and index buffers to draw the triangle
-        gl.bindBuffer(gl.ARRAY_BUFFER, positionBuffer);
-        gl.vertexAttribPointer(positionLocation, 2, gl.FLOAT, false, 0, 0);
-        gl.bindBuffer(gl.ARRAY_BUFFER, colorBuffer);
-        gl.vertexAttribPointer(colorLocation, 3, gl.FLOAT, false, 0, 0);
-        gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, indexBuffer);
-        gl.drawElements(gl.TRIANGLES, indexBuffer.numItems, gl.UNSIGNED_SHORT, 0);
-    }
-
-    render();
-    
-    
-
-
+    let shader = new TriangleShader();
 </script>
+
 </body>
 </html>
