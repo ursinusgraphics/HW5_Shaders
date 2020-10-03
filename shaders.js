@@ -114,6 +114,12 @@ class ShaderProgram {
             gl.bufferData(gl.ARRAY_BUFFER, buffers.colors, gl.STATIC_DRAW);
             gl.vertexAttribPointer(this.shader.colorLocation, 3, gl.FLOAT, false, 0, 0);
         }
+        if ('textureCoords' in buffers) {
+            this.textureCoordBuffer = gl.createBuffer();
+            gl.bindBuffer(gl.ARRAY_BUFFER, this.textureCoordBuffer);
+            gl.bufferData(gl.ARRAY_BUFFER, buffers.textureCoords, gl.STATIC_DRAW);
+            gl.vertexAttribPointer(this.shader.textureLocation, 2, gl.FLOAT, false, 0, 0);
+        }
         if ('indices' in buffers) {
             this.indexBuffer = gl.createBuffer();
             gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, this.indexBuffer);
