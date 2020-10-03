@@ -1,6 +1,8 @@
 <html>
     <head>
+        <script src="jquery-3.5.1.min.js"></script>
         <script src="shaders.js"></script>
+        <script src="circle.js"></script>
         <meta charset="utf-8" />
     </head>
 <body>
@@ -10,74 +12,7 @@
 <canvas id="MainGLCanvas" style="border: none;" width="600" height="600"></canvas>
 
 <script>
-    var glcanvas = document.getElementById("MainGLCanvas");
-    glcanvas.addEventListener("contextmenu", function(e){ e.stopPropagation(); e.preventDefault(); return false; }); //Need this to disable the menu that pops up on right clicking
-
-    try {
-        glcanvas.gl = glcanvas.getContext("webgl");
-        glcanvas.gl.viewportWidth = glcanvas.width;
-        glcanvas.gl.viewportHeight = glcanvas.height;
-    } catch (e) {
-        console.log(e);
-    }
-    let gl = glcanvas.gl;
-    let circleShader = getShaderProgram(gl, "circle");
-    circleShader.uTimeUniform = gl.getUniformLocation(circleShader, "uTime");
-    circleShader.uRadiusUniform = gl.getUniformLocation(circleShader, "uRadius");
-    positionLocation = gl.getAttribLocation(circleShader, "a_position");
-    gl.enableVertexAttribArray(positionLocation);
-    
-
-    // Setup some dummy positions for the vertex buffer
-    const positionBuffer = gl.createBuffer();
-    const positions = new Float32Array([-1.0,  1.0,
-                                        1.0,  1.0,
-                                        -1.0, -1.0,
-                                        1.0, -1.0]);
-    gl.bindBuffer(gl.ARRAY_BUFFER, positionBuffer);
-    gl.bufferData(gl.ARRAY_BUFFER, positions, gl.STATIC_DRAW);
-    gl.vertexAttribPointer(positionLocation, 2, gl.FLOAT, false, 0, 0);
-
-    // Setup 2 triangles connecting the vertices so that there
-    // are solid shaded regions
-    const indexBuffer = gl.createBuffer();
-    gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, indexBuffer);
-    const tris = new Uint16Array([0, 1, 2, 1, 2, 3]);
-    gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, tris, gl.STATIC_DRAW);
-    indexBuffer.itemSize = 1;
-    indexBuffer.numItems = 6;
-
-    // Setup uniforms that will change at each frame
-    let time = 0.0;
-    let radius = 0.2;
-    let thisTime = (new Date()).getTime();
-    let lastTime = thisTime;
-
-    function render() {
-        glcanvas.gl.useProgram(circleShader);
-
-        // Step 1: Setup uniform variables that are sent to the shaders
-        thisTime = (new Date()).getTime();
-        time += (thisTime - lastTime)/1000.0;
-        lastTime = thisTime;
-        gl.uniform1f(circleShader.uTimeUniform, time);
-        gl.uniform1f(circleShader.uRadiusUniform, radius);
-
-        // Step 2: Bind vertex and index buffers to draw two triangles
-        gl.bindBuffer(gl.ARRAY_BUFFER, positionBuffer);
-        gl.vertexAttribPointer(positionLocation, 2, gl.FLOAT, false, 0, 0);
-        gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, indexBuffer);
-        gl.drawElements(gl.TRIANGLES, indexBuffer.numItems, gl.UNSIGNED_SHORT, 0);
-
-        // Step 3: Keep the animation loop going
-        requestAnimationFrame(render);
-    }
-
-    render();
-    
-    
-
-
+    let shader = new CircleShader();
 </script>
 </body>
 </html>

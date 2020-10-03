@@ -1,4 +1,8 @@
-const MAX_LIGHTS = 10;
+/**
+ * Some utility functions for loading shaders asynchronously, as well
+ * as a skeleton parent class for simple shader program and buffer
+ * management in Javascript
+ */
 
 /**
  * A function that compiles a particular shader
@@ -75,4 +79,49 @@ function getShaderProgramAsync(gl, prefix) {
             });
         });
     });
+}
+
+
+class ShaderProgram {
+    constructor() {
+        let glcanvas = document.getElementById("MainGLCanvas");
+        glcanvas.addEventListener("contextmenu", function(e){ e.stopPropagation(); e.preventDefault(); return false; }); //Need this to disable the menu that pops up on right clicking
+        
+        try {
+            glcanvas.gl = glcanvas.getContext("webgl");
+            glcanvas.gl.viewportWidth = glcanvas.width;
+            glcanvas.gl.viewportHeight = glcanvas.height;
+            this.glcanvas = glcanvas;
+            this.loadShader();
+        } catch (e) {
+            alert("WebGL Error");
+            console.log(e);
+        }
+    }
+
+    setupBuffers(buffers) {
+        let gl = this.glcanvas.gl;
+        // Setup position and color buffers
+        if ('positions' in buffers) {
+            this.positionBuffer = gl.createBuffer();
+            gl.bindBuffer(gl.ARRAY_BUFFER, this.positionBuffer);
+            gl.bufferData(gl.ARRAY_BUFFER, buffers.positions, gl.STATIC_DRAW);
+            gl.vertexAttribPointer(this.shader.positionLocation, 2, gl.FLOAT, false, 0, 0);
+        }
+        if ('colors' in buffers) {
+            this.colorBuffer = gl.createBuffer();
+            gl.bindBuffer(gl.ARRAY_BUFFER, this.colorBuffer);
+            gl.bufferData(gl.ARRAY_BUFFER, buffers.colors, gl.STATIC_DRAW);
+            gl.vertexAttribPointer(this.shader.colorLocation, 3, gl.FLOAT, false, 0, 0);
+        }
+        if ('indices' in buffers) {
+            this.indexBuffer = gl.createBuffer();
+            gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, this.indexBuffer);
+            gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, buffers.indices, gl.STATIC_DRAW);
+            this.indexBuffer.itemSize = 1;
+            this.indexBuffer.numItems = buffers.indices.length;
+        }
+        this.render();
+    }
+
 }
