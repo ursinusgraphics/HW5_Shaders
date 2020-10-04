@@ -38,6 +38,7 @@ class TriangleShader extends ShaderProgram {
         // is a solid shaded region
         buffers.indices = new Uint16Array([0, 1, 2]);
         super.setupBuffers(buffers);
+        this.render();
     }
 
 

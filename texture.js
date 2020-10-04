@@ -91,7 +91,6 @@ class TextureShader extends ShaderProgram {
     }
 
     setupBuffers() {
-        let gl = this.glcanvas.gl;
         let buffers = {};
         // Setup position buffers to hold a square
         buffers.positions = new Float32Array([-1.0,  1.0,

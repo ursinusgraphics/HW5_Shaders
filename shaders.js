@@ -4,6 +4,42 @@
  * management in Javascript
  */
 
+function splitVecStr(s) {
+    ret = [];
+    s.split(",").forEach(function(x) {
+        ret.push(parseFloat(x));
+    });
+    return ret;
+}
+
+function vecToStr(v, k) {
+    if (k === undefined) {
+        k = 2;
+    }
+    s = "";
+    for (let i = 0; i < v.length; i++) {
+        s += v[i].toFixed(k);
+        if (i < v.length-1) {
+            s += ",";
+        }
+    }
+    return s;
+}
+
+    
+getMousePos = function(evt) {
+    if ('touches' in evt) {
+        return {
+            X: evt.touches[0].clientX,
+            Y: evt.touches[1].clientY
+        }
+    }
+    return {
+        X: evt.clientX,
+        Y: evt.clientY
+    };
+}
+
 /**
  * A function that compiles a particular shader
  * @param {object} gl WebGL handle
@@ -99,6 +135,11 @@ class ShaderProgram {
         }
     }
 
+    /** Skeleton method which should be overridden */
+    loadShader() {
+
+    }
+
     setupBuffers(buffers) {
         let gl = this.glcanvas.gl;
         // Setup position and color buffers
@@ -127,7 +168,94 @@ class ShaderProgram {
             this.indexBuffer.itemSize = 1;
             this.indexBuffer.numItems = buffers.indices.length;
         }
-        this.render();
     }
+
+    /**
+     * Setup functions to handle mouse events.  These may or may not
+     * be used in individual shaders, but their behavior is shared across
+     * many different types of shaders, so they should be available
+     */
+    setupMouseHandlers() {
+        this.dragging = false;
+        this.justClicked = false;
+        this.clickType = "LEFT";
+        this.lastX = 0;
+        this.lastY = 0;
+        let glcanvas = this.glcanvas;
+    
+        glcanvas.addEventListener('mousedown', this.makeClick.bind(this));
+        glcanvas.addEventListener('mouseup', this.releaseClick.bind(this));
+        glcanvas.addEventListener('mousemove', this.clickerDragged.bind(this));
+        glcanvas.addEventListener('mouseout', this.mouseOut.bind(this));
+    
+        //Support for mobile devices
+        glcanvas.addEventListener('touchstart', this.makeClick.bind(this));
+        glcanvas.addEventListener('touchend', this.releaseClick.bind(this));
+        glcanvas.addEventListener('touchmove', this.clickerDragged.bind(this));
+    }
+    releaseClick(evt) {
+        evt.preventDefault();
+        this.dragging = false;
+        this.render();
+        return false;
+    } 
+    mouseOut() {
+        this.dragging = false;
+        this.render();
+        return false;
+    }
+    makeClick(e) {
+        let evt = (e == null ? event:e);
+        this.clickType = "LEFT";
+        evt.preventDefault();
+        if (evt.which) {
+            if (evt.which == 3) this.clickType = "RIGHT";
+            if (evt.which == 2) this.clickType = "MIDDLE";
+        }
+        else if (evt.button) {
+            if (evt.button == 2) this.clickType = "RIGHT";
+            if (evt.button == 4) this.clickType = "MIDDLE";
+        }
+        this.dragging = true;
+        this.justClicked = true;
+        let mousePos = getMousePos(evt);
+        this.lastX = mousePos.X;
+        this.lastY = mousePos.Y;
+        this.render();
+        return false;
+    } 
+    clickerDragged(evt) {
+        evt.preventDefault();
+        return false;
+    }
+
+    /**
+     * Update the center/scale based on a drag event
+     * This assumes that scale, center, and centervec have all
+     * been defined
+     * @param {MouseEvent} evt 
+     */
+    clickerDraggedCenterScale(evt) {
+        let glcanvas = this.glcanvas;
+        let mousePos = getMousePos(evt);
+        let X = mousePos.X;
+        let Y = mousePos.Y;
+        let dX = X - this.lastX;
+        let dY = Y - this.lastY;
+        this.lastX = X;
+        this.lastY = Y;
+        if (this.dragging) {
+            if (this.clickType == "RIGHT") { //Right click
+                this.scale *= Math.pow(1.01, dY); //Want to zoom in as the mouse goes up
+            }
+            else if (this.clickType == "LEFT") {
+                this.centervec[0] += 2.0*dX/glcanvas.width*this.scale;
+                this.centervec[1] -= 2.0*dY/glcanvas.height*this.scale;
+            }
+            this.center = vecToStr(this.centervec);
+            this.render();
+        }
+    }
+
 
 }

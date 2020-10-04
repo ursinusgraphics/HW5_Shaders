@@ -1,5 +1,6 @@
 precision mediump float;
 
+const float BLUR_WIDTH = 5.0;
 
 // The 2D position of the pixel in this fragment, interpolated via
 // barycentric coordinates from positions of triangle vertices
@@ -20,7 +21,15 @@ void main() {
 
     
     //Straight texture map
-    gl_FragColor = texture2D(uSampler, v_texture);
+    float diff = 0.005;
+    gl_FragColor = vec4(0.0, 0.0, 0.0, 0.0);
+    for (float i = -BLUR_WIDTH/2.0; i < BLUR_WIDTH/2.0; i++) {
+        for (float j = -BLUR_WIDTH/2.0; j < BLUR_WIDTH/2.0; j++) {
+            gl_FragColor += texture2D(uSampler, vec2(x+i*diff, y+j*diff));
+        }
+    }
+    gl_FragColor /= (BLUR_WIDTH*BLUR_WIDTH);
+    gl_FragColor[3] = 1.0;
     
 
     /*
