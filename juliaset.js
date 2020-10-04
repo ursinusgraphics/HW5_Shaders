@@ -105,7 +105,9 @@ class JuliaSetShader extends ShaderProgram {
         let menu = new dat.GUI();
         this.menu = menu;
         this.center = vecToStr(this.centervec);
-        this.pows = vecToStr(this.powsvec);
+        this.powR = this.powsvec[0];
+        this.powG = this.powsvec[1];
+        this.powB = this.powsvec[2];
         let shaderObj = this;
         menu.add(this, 'C').listen().onChange(
             function(value) {
@@ -124,12 +126,21 @@ class JuliaSetShader extends ShaderProgram {
                 requestAnimationFrame(shaderObj.render.bind(shaderObj));
             }
         );
-        menu.add(this, 'pows').listen().onChange(
+        menu.add(this, 'powR').onChange(
             function(value) {
-                let xyz = splitVecStr(value);
-                for (let k = 0; k < 3; k++) {
-                    shaderObj.powsvec[k] = xyz[k];
-                }
+                shaderObj.powsvec[0] = parseFloat(value);
+                requestAnimationFrame(shaderObj.render.bind(shaderObj));
+            }
+        );
+        menu.add(this, 'powG').onChange(
+            function(value) {
+                shaderObj.powsvec[0] = parseFloat(value);
+                requestAnimationFrame(shaderObj.render.bind(shaderObj));
+            }
+        );
+        menu.add(this, 'powB').onChange(
+            function(value) {
+                shaderObj.powsvec[0] = parseFloat(value);
                 requestAnimationFrame(shaderObj.render.bind(shaderObj));
             }
         );
