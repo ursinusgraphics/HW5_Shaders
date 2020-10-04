@@ -65,6 +65,8 @@ function loadTexture(gl, texture, url) {
 class TextureShader extends ShaderProgram {
     constructor(imagePath) {
         super();
+        this.scale = 1;
+        this.centervec = glMatrix.vec2.fromValues(0, 0);
         this.imagePath = imagePath;
         this.texture = this.glcanvas.gl.createTexture();
         this.texture = loadTexture(this.glcanvas.gl, this.texture, this.imagePath);
@@ -145,6 +147,7 @@ class TextureShader extends ShaderProgram {
         this.time = 0.0;
         this.thisTime = (new Date()).getTime();
         this.lastTime = this.thisTime;
+        this.setupMouseHandlers();
         this.render();
     }
 
@@ -161,6 +164,8 @@ class TextureShader extends ShaderProgram {
         this.time += (this.thisTime - this.lastTime)/1000.0;
         this.lastTime = this.thisTime;
         gl.uniform1f(shader.uTimeUniform, this.time);
+        gl.uniform2fv(shader.uCenterUniform, this.centervec);
+        gl.uniform1f(shader.uScaleUniform, this.scale);
 
         // Step 2: Bind vertex and index buffers to draw two triangles
         gl.bindBuffer(gl.ARRAY_BUFFER, this.positionBuffer);

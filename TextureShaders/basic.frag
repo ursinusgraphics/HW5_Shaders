@@ -12,14 +12,15 @@ varying highp vec2 v_texture;
 uniform sampler2D uSampler;
 
 uniform float uTime;
+uniform vec2 uCenter; // Where the origin (0, 0) is on the canvas
+uniform float uScale; // Scale of fractal
 
 void main() {
-    float c = cos(uTime);
-    float s = sin(uTime);
-    float x = v_texture.x;
-    float y = v_texture.y;
+    vec2 C = uCenter;
+    C[1] *= -1.0;
+    vec2 pos = uScale*v_texture - C;
 
     
     //Straight texture map
-    gl_FragColor = texture2D(uSampler, vec2(x, y));
+    gl_FragColor = texture2D(uSampler, pos);
 }

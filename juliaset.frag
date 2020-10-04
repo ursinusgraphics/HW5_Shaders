@@ -19,6 +19,7 @@ uniform vec3 uPows; /* Final color will be R = uPows.x^(-count/MAX_ITERS)
 varying vec2 v_position;
 
 void main() {
+    vec2 z = uScale*v_position - uCenter; // Initial starting point
     //TODO: Fill this in
     gl_FragColor = vec4(0.0, 0.0, 0.0, 1.0);
 }
