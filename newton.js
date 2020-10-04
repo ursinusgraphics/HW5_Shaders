@@ -134,9 +134,17 @@ class NewtonFractalShader extends ShaderProgram {
         newtonShader.then(function(shader) {
             // Extract uniforms and store them in the shader object
             shader.uCenterUniform = gl.getUniformLocation(shader, "uCenter");
+            shader.uScaleUniform = gl.getUniformLocation(shader, "uScale");
             // Extract the position buffer and store it in the shader object
             shader.positionLocation = gl.getAttribLocation(shader, "a_position");
             gl.enableVertexAttribArray(shader.positionLocation);
+            console.log(gl.getAttribLocation(shader, "uCoeffs[0]"));
+            shader.uCoeffsUniform = [];
+            for (let i = 0; i <= MAX_DEGREE; i++) {
+                let locstr = "uCoeffs["+i+"]";
+                shader.uCoeffsUniform.push(gl.getAttribLocation(shader, locstr));
+            }
+            console.log(shader);
             shaderObj.shader = shader;
             shaderObj.setupBuffers();
         });
@@ -209,6 +217,9 @@ class NewtonFractalShader extends ShaderProgram {
         // Step 1: Setup uniform variables that are sent to the shaders
         gl.uniform2fv(shader.uCenterUniform, this.centervec);
         gl.uniform1f(shader.uScaleUniform, this.scale);
+        /*for (let i = 0; i <= MAX_DEGREE; i++) {
+            gl.uniform1f(shader.uCoeffsUniform[i], this.polycoeffs[i]);
+        }*/
 
         // Step 2: Bind vertex and index buffers to draw two triangles
         gl.bindBuffer(gl.ARRAY_BUFFER, this.positionBuffer);
