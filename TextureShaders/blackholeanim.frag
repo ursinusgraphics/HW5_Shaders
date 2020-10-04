@@ -1,7 +1,5 @@
 precision mediump float;
 
-const float BLUR_WIDTH = 5.0;
-
 // The 2D position of the pixel in this fragment, interpolated via
 // barycentric coordinates from positions of triangle vertices
 varying vec2 v_position;
@@ -19,36 +17,6 @@ void main() {
     float x = v_texture.x;
     float y = v_texture.y;
 
-    
-    //Straight texture map
-    float diff = 0.005;
-    gl_FragColor = vec4(0.0, 0.0, 0.0, 0.0);
-    for (float i = -BLUR_WIDTH/2.0; i < BLUR_WIDTH/2.0; i++) {
-        for (float j = -BLUR_WIDTH/2.0; j < BLUR_WIDTH/2.0; j++) {
-            gl_FragColor += texture2D(uSampler, vec2(x+i*diff, y+j*diff));
-        }
-    }
-    gl_FragColor /= (BLUR_WIDTH*BLUR_WIDTH);
-    gl_FragColor[3] = 1.0;
-    
-
-    /*
-    // Rotate in a circle around upper left    
-    gl_FragColor = texture2D(uSampler, vec2(c*x-s*y, s*x+c*y));
-    */
-
-    /*
-    // Translate in a circle around the center
-    gl_FragColor = texture2D(uSampler, vec2(x + c, y + s));
-    */
-
-    /*
-    //Wiggly texture map
-    vec2 tex = vec2(x + 0.02*cos(5.0*uTime+20.0*y), y);
-    gl_FragColor = texture2D(uSampler, tex);
-    */
-
-    /*
     // Center of black hole
     float cx = 0.7; 
     float cy = 0.5;
@@ -65,5 +33,5 @@ void main() {
     else {
         vec2 tex = vec2(x, y);
         gl_FragColor = texture2D(uSampler, tex);
-    }*/
+    }
 }

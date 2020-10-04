@@ -10,10 +10,10 @@ function isPowerOf2(value) {
  * When the image finished loading copy it into the texture.
  *
  * @param {gl handle} gl WebGL handle
+ * @param {texture handle} texture Texture ID
  * @param {String} url path to texture
  */
-function loadTexture(gl, url) {
-    const texture = gl.createTexture();
+function loadTexture(gl, texture, url) {
     gl.bindTexture(gl.TEXTURE_2D, texture);
 
     // Because images have to be download over the internet
@@ -65,20 +65,52 @@ function loadTexture(gl, url) {
 class TextureShader extends ShaderProgram {
     constructor(imagePath) {
         super();
-        this.texture = loadTexture(this.glcanvas.gl, imagePath);
+        this.imagePath = imagePath;
+        this.texture = this.glcanvas.gl.createTexture();
+        this.texture = loadTexture(this.glcanvas.gl, this.texture, this.imagePath);
+        this.setupMenu();
+    }
+
+    clickerDragged(evt) {
+        this.clickerDraggedCenterScale(evt);
+    }
+
+    updateImage() {
+        this.texture = loadTexture(this.glcanvas.gl, this.texture,  this.imagePath);
+        this.render();
+    }
+
+    setupMenu() {
+        let shaderObj = this;
+        let menu = new dat.GUI();
+        this.menu = menu;
+        menu.add(this, 'imagePath');
+        menu.add(this, 'updateImage');
+        this.shaderType = 'basic';
+        menu.add(this, 'shaderType', ['basic', 'grayscale', 'mean', 'laplacian', 'rotateanim', 'translateanim', 'wigglyanim', 'blackholeanim']).onChange(
+            function(type) {
+                shaderObj.loadShader("TextureShaders/"+type);
+            }
+        );
     }
 
     /**
      * Asynchronously load the vertex and fragment shaders
+     * @param {*} name 
      */
-    loadShader() {
+    loadShader(name) {
+        if (name === undefined) {
+            name = "TextureShaders/basic";
+        }
         let gl = this.glcanvas.gl;
-        let textureShader = getShaderProgramAsync(gl, "texture");
+        let textureShader = getShaderProgramAsync(gl, name);
         let shaderObj = this;
         textureShader.then(function(shader) {
             // Extract uniforms and store them in the shader object
             shader.uSampler = gl.getUniformLocation(shader, 'uSampler');
             shader.uTimeUniform = gl.getUniformLocation(shader, "uTime");
+            shader.uCenterUniform = gl.getUniformLocation(shader, "uCenter");
+            shader.uScaleUniform = gl.getUniformLocation(shader, "uScale");
             // Extract the position buffer and store it in the shader object
             shader.positionLocation = gl.getAttribLocation(shader, "a_position");
             gl.enableVertexAttribArray(shader.positionLocation);
@@ -111,7 +143,6 @@ class TextureShader extends ShaderProgram {
 
         // Setup animation variables
         this.time = 0.0;
-        this.radius = 0.2;
         this.thisTime = (new Date()).getTime();
         this.lastTime = this.thisTime;
         this.render();
