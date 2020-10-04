@@ -96,7 +96,7 @@ class JuliaSetShader extends ShaderProgram {
      * and inputs
      */
     setupMenu() {
-        this.CVec = glMatrix.vec2.fromValues(0, 0);
+        this.CVec = glMatrix.vec2.fromValues(-1, 0);
         this.C = complexToStr(this.CVec);
         this.scale = 1;
         this.escape = 2.0;
@@ -130,7 +130,7 @@ class JuliaSetShader extends ShaderProgram {
                 for (let k = 0; k < 3; k++) {
                     shaderObj.powsvec[k] = xyz[k];
                 }
-                requestAnimFrame(shaderObj.render.bind(shaderObj));
+                requestAnimationFrame(shaderObj.render.bind(shaderObj));
             }
         );
     }
@@ -157,6 +157,3 @@ class JuliaSetShader extends ShaderProgram {
     }
     
 }
-
-
-
