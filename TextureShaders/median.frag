@@ -21,7 +21,8 @@ void main() {
     gl_FragColor = vec4(0.0, 0.0, 0.0, 0.0);
     for (float dx = -BLUR_SUPPORT; dx <= BLUR_SUPPORT; dx += BLUR_INC) {
         for (float dy = -BLUR_SUPPORT; dy <= BLUR_SUPPORT; dy += BLUR_INC) {
-            gl_FragColor += texture2D(uSampler, vec2(x+dx, y+dy));
+            vec2 I = texture2D(uSampler, vec2(x+dx, y+dy));
+            // TODO: Fill this in (CLASS EXERCISE)
             numTotal++;
         }
     }

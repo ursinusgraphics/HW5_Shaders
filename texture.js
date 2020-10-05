@@ -6,59 +6,6 @@ function isPowerOf2(value) {
 
 
 /**
- * Initialize a texture and load an image.
- * When the image finished loading copy it into the texture.
- *
- * @param {gl handle} gl WebGL handle
- * @param {texture handle} texture Texture ID
- * @param {String} url path to texture
- */
-function loadTexture(gl, texture, url) {
-    gl.bindTexture(gl.TEXTURE_2D, texture);
-
-    // Because images have to be download over the internet
-    // they might take a moment until they are ready.
-    // Until then put a single pixel in the texture so we can
-    // use it immediately. When the image has finished downloading
-    // we'll update the texture with the contents of the image.
-    const level = 0;
-    const internalFormat = gl.RGBA;
-    const width = 1;
-    const height = 1;
-    const border = 0;
-    const srcFormat = gl.RGBA;
-    const srcType = gl.UNSIGNED_BYTE;
-    const pixel = new Uint8Array([0, 0, 255, 255]);  // opaque blue
-    gl.texImage2D(gl.TEXTURE_2D, level, internalFormat,
-                    width, height, border, srcFormat, srcType,
-                    pixel);
-
-    const image = new Image();
-    image.onload = function() {
-        gl.bindTexture(gl.TEXTURE_2D, texture);
-        gl.texImage2D(gl.TEXTURE_2D, level, internalFormat,
-                    srcFormat, srcType, image);
-
-        // WebGL1 has different requirements for power of 2 images
-        // vs non power of 2 images so check if the image is a
-        // power of 2 in both dimensions.
-        if (isPowerOf2(image.width) && isPowerOf2(image.height)) {
-        // Yes, it's a power of 2. Generate mips.
-        gl.generateMipmap(gl.TEXTURE_2D);
-        } else {
-        // No, it's not a power of 2. Turn off mips and set
-        // wrapping to clamp to edge
-        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
-        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
-        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
-        }
-    };
-    image.src = url;
-
-    return texture;
-}
-
-/**
  * A class for storing the shader program and buffers for rendering
  * a texture mapped square
  */
@@ -69,8 +16,61 @@ class TextureShader extends ShaderProgram {
         this.centervec = glMatrix.vec2.fromValues(0, 0);
         this.imagePath = imagePath;
         this.texture = this.glcanvas.gl.createTexture();
-        this.texture = loadTexture(this.glcanvas.gl, this.texture, this.imagePath);
+        this.loadTexture(this.imagePath);
         this.setupMenu();
+    }
+
+    /**
+     * Initialize a texture and load an image.
+     * When the image finished loading copy it into the texture.
+     *
+     * @param {String} url path to texture
+     */
+    loadTexture(url) {
+        let gl = this.glcanvas.gl;
+        let texture = this.texture;
+        gl.bindTexture(gl.TEXTURE_2D, texture);
+
+        // Because images have to be download over the internet
+        // they might take a moment until they are ready.
+        // Until then put a single pixel in the texture so we can
+        // use it immediately. When the image has finished downloading
+        // we'll update the texture with the contents of the image.
+        const level = 0;
+        const internalFormat = gl.RGBA;
+        const width = 1;
+        const height = 1;
+        const border = 0;
+        const srcFormat = gl.RGBA;
+        const srcType = gl.UNSIGNED_BYTE;
+        const pixel = new Uint8Array([0, 0, 255, 255]);  // opaque blue
+        gl.texImage2D(gl.TEXTURE_2D, level, internalFormat,
+                        width, height, border, srcFormat, srcType,
+                        pixel);
+
+        const image = new Image();
+        let shaderObj = this;
+        image.onload = function() {
+            gl.bindTexture(gl.TEXTURE_2D, texture);
+            gl.texImage2D(gl.TEXTURE_2D, level, internalFormat,
+                        srcFormat, srcType, image);
+
+            // WebGL1 has different requirements for power of 2 images
+            // vs non power of 2 images so check if the image is a
+            // power of 2 in both dimensions.
+            if (isPowerOf2(image.width) && isPowerOf2(image.height)) {
+            // Yes, it's a power of 2. Generate mips.
+            gl.generateMipmap(gl.TEXTURE_2D);
+            } else {
+            // No, it's not a power of 2. Turn off mips and set
+            // wrapping to clamp to edge
+            gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+            gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+            gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
+            }
+            shaderObj.render.bind(shaderObj)();
+        };
+        image.src = url;
     }
 
     clickerDragged(evt) {
@@ -78,7 +78,7 @@ class TextureShader extends ShaderProgram {
     }
 
     updateImage() {
-        this.texture = loadTexture(this.glcanvas.gl, this.texture,  this.imagePath);
+        this.loadTexture(this.imagePath);
         this.render();
     }
 
@@ -89,7 +89,7 @@ class TextureShader extends ShaderProgram {
         menu.add(this, 'imagePath');
         menu.add(this, 'updateImage');
         this.shaderType = 'basic';
-        menu.add(this, 'shaderType', ['basic', 'grayscale', 'mean', 'laplacian', 'rotateanim', 'translateanim', 'wigglyanim', 'blackholeanim']).onChange(
+        menu.add(this, 'shaderType', ['basic', 'grayscale', 'mean', 'median', 'laplacian', 'emboss', 'rotateanim', 'translateanim', 'wigglyanim', 'blackholeanim']).onChange(
             function(type) {
                 shaderObj.loadShader("TextureShaders/"+type);
             }
@@ -153,10 +153,17 @@ class TextureShader extends ShaderProgram {
 
     /**
      * Draw using WebGL
+     * @param {boolean} loop Whether to have an animation loop
      */
-    render() {
+    render(loop) {
+        if (loop === undefined) {
+            loop = true;
+        }
         let gl = this.glcanvas.gl;
         let shader = this.shader;
+        if (shader === undefined) {
+            return;
+        }
         gl.useProgram(shader);
 
         // Step 1: Setup uniform variables that are sent to the shaders
@@ -178,11 +185,79 @@ class TextureShader extends ShaderProgram {
         gl.bindTexture(gl.TEXTURE_2D, this.texture);
         gl.uniform1i(shader.uSampler, 0);
 
-        // Keep the animation loop going
-        requestAnimationFrame(this.render.bind(this));
+        if (loop) {
+            // Keep the animation loop going
+            requestAnimationFrame(this.render.bind(this));
+        }
     }
     
 }
 
 
 
+class BilateralShader extends TextureShader {
+    constructor(imagePath) {
+        super(imagePath);
+    }
+
+    /**
+     * Asynchronously load the vertex and fragment shaders
+     * @param {*} name 
+     */
+    loadShader() {
+        let gl = this.glcanvas.gl;
+        let textureShader = getShaderProgramAsync(gl, "TextureShaders/bilateral");
+        let shaderObj = this;
+        textureShader.then(function(shader) {
+            // Extract uniforms and store them in the shader object
+            shader.uSampler = gl.getUniformLocation(shader, 'uSampler');
+            shader.uTimeUniform = gl.getUniformLocation(shader, "uTime");
+            shader.uCenterUniform = gl.getUniformLocation(shader, "uCenter");
+            shader.uScaleUniform = gl.getUniformLocation(shader, "uScale");
+            shader.uSigmadUniform = gl.getUniformLocation(shader, "uSigmad");
+            shader.uSigmarUniform = gl.getUniformLocation(shader, "uSigmar");
+            // Extract the position buffer and store it in the shader object
+            shader.positionLocation = gl.getAttribLocation(shader, "a_position");
+            gl.enableVertexAttribArray(shader.positionLocation);
+            // Extract texture coordinate buffer and store it in the shader object
+            shader.textureLocation = gl.getAttribLocation(shader, "a_texture");
+            gl.enableVertexAttribArray(shader.textureLocation);
+            shaderObj.shader = shader;
+            shaderObj.setupBuffers();
+        });
+    }
+
+    setupMenu() {
+        let shaderObj = this;
+        let menu = new dat.GUI();
+        this.menu = menu;
+        menu.add(this, 'imagePath');
+        menu.add(this, 'updateImage');
+        this.sigmad = 0.01;
+        this.sigmar = 0.01;
+        menu.add(this, "sigmad", 0, 0.2).onChange(
+            function(sigma) {
+                shaderObj.sigmad = sigma;
+                shaderObj.render.bind(shaderObj)();
+            }
+        )
+        menu.add(this, "sigmar", 0, 0.2).onChange(
+            function(sigma) {
+                shaderObj.sigmar = sigma;
+                shaderObj.render.bind(shaderObj)();
+            }
+        )
+    }
+
+    render() {
+        let gl = this.glcanvas.gl;
+        let shader = this.shader;
+        if (shader === undefined) {
+            return;
+        }
+        gl.useProgram(shader);
+        gl.uniform1f(shader.uSigmadUniform, this.sigmad);
+        gl.uniform1f(shader.uSigmarUniform, this.sigmar);
+        super.render(false);
+    }
+}
