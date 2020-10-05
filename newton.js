@@ -112,6 +112,36 @@ function complexToStr(v, k) {
     return s;
 }
 
+/**
+ * Get a magnitude bound of the roots in a polynomial
+ * https://en.m.wikipedia.org/wiki/Geometrical_properties_of_polynomial_roots
+ * @param {list} p List of length MAX_DEGREE + 1
+ */
+function getMagnitudeBound(p) {
+    let cauchy = 0;
+    let lagrange = 0;
+    let n = MAX_DEGREE;
+    while (p[n] == 0 && n > 0) {
+        n--;
+    }
+    if (n == 0) {
+        return 1;
+    }
+    for (let i = 0; i < n; i++) {
+        let ratio = Math.abs(p[i]/p[n]);
+        cauchy += ratio;
+        if (ratio > lagrange) {
+            lagrange = ratio;
+        }
+    }
+    cauchy = Math.max(1, cauchy);
+    let ret = Math.min(lagrange, cauchy);
+    if (ret == 0) {
+        ret = 1;
+    }
+    return ret;
+}
+
 
 /**
  * A class for storing the shader program and buffers for rendering
@@ -135,16 +165,14 @@ class NewtonFractalShader extends ShaderProgram {
             // Extract uniforms and store them in the shader object
             shader.uCenterUniform = gl.getUniformLocation(shader, "uCenter");
             shader.uScaleUniform = gl.getUniformLocation(shader, "uScale");
+            shader.uColorScaleUniform = gl.getUniformLocation(shader, "uColorScale");
+            shader.uCoeffsUniform = [];
+            for (let i = 0; i <= MAX_DEGREE; i++) {
+                shader.uCoeffsUniform.push(gl.getUniformLocation(shader, "uCoeffs["+i+"]"));
+            }
             // Extract the position buffer and store it in the shader object
             shader.positionLocation = gl.getAttribLocation(shader, "a_position");
             gl.enableVertexAttribArray(shader.positionLocation);
-            console.log(gl.getAttribLocation(shader, "uCoeffs[0]"));
-            shader.uCoeffsUniform = [];
-            for (let i = 0; i <= MAX_DEGREE; i++) {
-                let locstr = "uCoeffs["+i+"]";
-                shader.uCoeffsUniform.push(gl.getAttribLocation(shader, locstr));
-            }
-            console.log(shader);
             shaderObj.shader = shader;
             shaderObj.setupBuffers();
         });
@@ -199,10 +227,17 @@ class NewtonFractalShader extends ShaderProgram {
         );
         this.polynomial = "z^3-1";
         this.polycoeffs = splitPolynomialStr(this.polynomial);
+        this.colorScale = getMagnitudeBound(this.polycoeffs);
         menu.add(this, 'polynomial').listen().onChange(
             function(s) {
                 shaderObj.polycoeffs = splitPolynomialStr(s);
                 shaderObj.polynomial = polynomialToString(shaderObj.polycoeffs);
+                shaderObj.center = "0,0";
+                shaderObj.centervec[0] = 0;
+                shaderObj.centervec[1] = 0;
+                shaderObj.scale = getMagnitudeBound(shaderObj.polycoeffs);
+                shaderObj.colorScale = shaderObj.scale;
+                requestAnimationFrame(shaderObj.render.bind(shaderObj));
             }
         )
     }
@@ -217,9 +252,10 @@ class NewtonFractalShader extends ShaderProgram {
         // Step 1: Setup uniform variables that are sent to the shaders
         gl.uniform2fv(shader.uCenterUniform, this.centervec);
         gl.uniform1f(shader.uScaleUniform, this.scale);
-        /*for (let i = 0; i <= MAX_DEGREE; i++) {
+        gl.uniform1f(shader.uColorScaleUniform, this.colorScale);
+        for (let i = 0; i <= MAX_DEGREE; i++) {
             gl.uniform1f(shader.uCoeffsUniform[i], this.polycoeffs[i]);
-        }*/
+        }
 
         // Step 2: Bind vertex and index buffers to draw two triangles
         gl.bindBuffer(gl.ARRAY_BUFFER, this.positionBuffer);
