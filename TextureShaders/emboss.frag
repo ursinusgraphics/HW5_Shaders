@@ -9,8 +9,6 @@ varying highp vec2 v_texture;
 
 uniform sampler2D uSampler;
 
-uniform float uTime;
-
 void main() {
     float x = v_texture.x;
     float y = v_texture.y;

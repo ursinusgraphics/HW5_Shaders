@@ -120,6 +120,7 @@ class TextureShader extends ShaderProgram {
             shader.textureLocation = gl.getAttribLocation(shader, "a_texture");
             gl.enableVertexAttribArray(shader.textureLocation);
             shaderObj.shader = shader;
+            console.log(shader);
             shaderObj.setupBuffers();
         });
     }
@@ -185,7 +186,7 @@ class TextureShader extends ShaderProgram {
         gl.bindTexture(gl.TEXTURE_2D, this.texture);
         gl.uniform1i(shader.uSampler, 0);
 
-        if (loop) {
+        if (loop && !(shader.uTimeUniform === null)) {
             // Keep the animation loop going
             requestAnimationFrame(this.render.bind(this));
         }
