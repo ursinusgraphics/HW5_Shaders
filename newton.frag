@@ -35,7 +35,7 @@ vec2 pow(vec2 z, int n) {
 */
 vec2 polynomial(vec2 z) {
     vec2 ret = vec2(0.0, 0.0);
-    // TODO: Fill this in
+    // TODO: Fill this in with the help of pow()
     return ret;
 }
 
@@ -47,6 +47,7 @@ vec2 polynomial(vec2 z) {
 */
 vec2 polynomialDeriv(vec2 z) {
     vec2 zret = vec2(0.0, 0.0);
+    // TODO: Fill this in with the help of pow
     return zret;
 }
 
@@ -57,6 +58,7 @@ vec2 polynomialDeriv(vec2 z) {
  */
 vec2 complexDiv(vec2 v1, vec2 v2) {
     // TODO: Fill this in
+    // See https://mathworld.wolfram.com/ComplexDivision.html
     return vec2(1.0, 1.0); // This is a dummy value
 }
 
