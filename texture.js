@@ -89,7 +89,7 @@ class TextureShader extends ShaderProgram {
         menu.add(this, 'imagePath');
         menu.add(this, 'updateImage');
         this.shaderType = 'basic';
-        menu.add(this, 'shaderType', ['basic', 'grayscale', 'mean', 'median', 'laplacian', 'emboss', 'rotateanim', 'translateanim', 'wigglyanim', 'blackholeanim']).onChange(
+        menu.add(this, 'shaderType', ['basic', 'grayscale', 'mean', 'median', 'laplacian', 'emboss', 'invert', 'rotateanim', 'translateanim', 'wigglyanim', 'blackholeanim']).onChange(
             function(type) {
                 shaderObj.loadShader("TextureShaders/"+type);
             }
@@ -120,7 +120,6 @@ class TextureShader extends ShaderProgram {
             shader.textureLocation = gl.getAttribLocation(shader, "a_texture");
             gl.enableVertexAttribArray(shader.textureLocation);
             shaderObj.shader = shader;
-            console.log(shader);
             shaderObj.setupBuffers();
         });
     }

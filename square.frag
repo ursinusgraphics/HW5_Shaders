@@ -6,22 +6,20 @@ precision mediump float;
 // Uniforms set from Javascript that are constant
 // over all fragments
 uniform float uTime; // Time elapsed since beginning of simulation
-uniform float uRadius; // Radius of blob
+uniform float uHalfSideLen; // Half of the side length
 
 // The 2D position of the pixel in this fragment, interpolated via
 // barycentric coordinates from positions of triangle vertices
 varying vec2 v_position;
 
 void main() {
-    //TODO: Fill this in.  The center should be blurry, and it should
-    //move in an arc from the left of the screen to the right of the screen.
-    //The red channel should be proportional to its height
-    float x = v_position.x - cos(uTime);
+    //TODO: Fill this in for module 8 exercise 1
+    float x = v_position.x;
     float y = v_position.y;
-    if (x*x + y*y <= uRadius*uRadius) {
-        gl_FragColor = vec4(1.0, 0.0, 0.0, 1.0);
-    }
-    else {
-        gl_FragColor = vec4(0.0, 0.0, 0.0, 1.0);
-    }
+    /* TODO: Change this to a square that moves towards
+     * the bottom right with time.  In particular, draw a pixel
+     * in red if |x-uTime/5| < uHalfSideLen and |y+uTime/5| < uHalfSideLen.
+     * Otherwise, draw it in black
+     */
+    gl_FragColor = vec4(0.0, 0.0, 0.0, 1.0);
 }
