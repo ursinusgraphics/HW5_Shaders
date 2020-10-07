@@ -6,4 +6,5 @@
 https://scikit-image.org/docs/dev/api/skimage.data.html#retina
 * moon.png: Creative commons
 https://scikit-image.org/docs/dev/api/skimage.data.html#moon
-* moonsaltpepper.png: Derived from above
+* winterTree.png: Creative commons, derived from
+https://www.flickr.com/photos/rkramer62/5376378680
