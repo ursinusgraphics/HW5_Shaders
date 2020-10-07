@@ -89,7 +89,7 @@ class TextureShader extends ShaderProgram {
         menu.add(this, 'imagePath');
         menu.add(this, 'updateImage');
         this.shaderType = 'basic';
-        menu.add(this, 'shaderType', ['basic', 'grayscale', 'mean', 'median', 'laplacian', 'emboss', 'invert', 'rotateanim', 'translateanim', 'wigglyanim', 'blackholeanim']).onChange(
+        menu.add(this, 'shaderType', ['basic', 'grayscale', 'mean', 'median', 'laplacian', 'emboss', 'invert', 'intoxicated', 'rotateanim', 'translateanim', 'wigglyanim', 'blackholeanim']).onChange(
             function(type) {
                 shaderObj.loadShader("TextureShaders/"+type);
             }
