@@ -16,12 +16,7 @@ void main() {
     //TODO: Fill this in.  The center should be blurry, and it should
     //move in an arc from the left of the screen to the right of the screen.
     //The red channel should be proportional to its height
-    float x = v_position.x - cos(uTime);
-    float y = v_position.y;
-    if (x*x + y*y <= uRadius*uRadius) {
-        gl_FragColor = vec4(1.0, 0.0, 0.0, 1.0);
-    }
-    else {
-        gl_FragColor = vec4(0.0, 0.0, 0.0, 1.0);
-    }
+    float r = 0.5*(1.0+cos(uTime));
+
+    gl_FragColor = vec4(r, 0.0, 0.0, 1.0);
 }
