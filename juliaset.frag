@@ -6,6 +6,7 @@ precision highp float;
 
 // Uniforms set from Javascript that are constant
 // over all fragments
+uniform float uTime;
 uniform vec2 uCenter; // Where the origin (0, 0) is on the canvas
 uniform vec2 uC; // z -> z^2 + uC
 uniform float uScale; // Scale of fractal
@@ -20,6 +21,12 @@ varying vec2 v_position;
 
 void main() {
     vec2 z = uScale*v_position - uCenter;
+    for (float i = 0.0; i < MAX_ITERS; i++) {
+        if (i > 10.0) {
+            break;
+
+        }
+    }
     //TODO: Fill this in
-    gl_FragColor = vec4(0, 0, 0, 1);
+    gl_FragColor = vec4(0.5*(1.0+cos(uTime)), 0, 0, 1);
 }

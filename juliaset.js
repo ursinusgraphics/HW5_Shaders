@@ -50,6 +50,7 @@ class JuliaSetShader extends ShaderProgram {
      * Asynchronously load the vertex and fragment shaders
      */
     loadShader() {
+        this.initialTime = new Date();
         let gl = this.glcanvas.gl;
         let juliaShader = getShaderProgramAsync(gl, "juliaset");
         let shaderObj = this;
@@ -60,6 +61,7 @@ class JuliaSetShader extends ShaderProgram {
             shader.uScaleUniform = gl.getUniformLocation(shader, "uScale");
             shader.uEscapeUniform = gl.getUniformLocation(shader, "uEscape");
             shader.uPowsUniform = gl.getUniformLocation(shader, "uPows");
+            shader.uTimeUniform = gl.getUniformLocation(shader, "uTime");
             // Extract the position buffer and store it in the shader object
             shader.positionLocation = gl.getAttribLocation(shader, "a_position");
             gl.enableVertexAttribArray(shader.positionLocation);
@@ -154,6 +156,8 @@ class JuliaSetShader extends ShaderProgram {
         let shader = this.shader;
         gl.useProgram(shader);
         // Step 1: Setup uniform variables that are sent to the shaders
+        let time = (new Date()-this.initialTime)/1000.0;
+        gl.uniform1f(shader.uTimeUniform, time);
         gl.uniform2fv(shader.uCenterUniform, this.centervec);
         gl.uniform2fv(shader.uCUniform, this.CVec);
         gl.uniform1f(shader.uScaleUniform, this.scale);
@@ -165,6 +169,7 @@ class JuliaSetShader extends ShaderProgram {
         gl.vertexAttribPointer(shader.positionLocation, 2, gl.FLOAT, false, 0, 0);
         gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, this.indexBuffer);
         gl.drawElements(gl.TRIANGLES, this.indexBuffer.numItems, gl.UNSIGNED_SHORT, 0);
+        requestAnimationFrame(this.render.bind(this));
     }
     
 }
