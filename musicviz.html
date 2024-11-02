@@ -1,0 +1,73 @@
+<html>
+<head>
+    <link rel="stylesheet" href="assets/css/main.css" />
+    <script src="jslibs/jquery-3.5.1.min.js"></script>
+    <script src="jslibs/dat.gui.min.js"></script>
+    <script src="jslibs/gl-matrix-min.js"></script>
+    <script src="jslibs/numeric-1.2.6.min.js"></script>
+    
+    <script src="jsanov/libs/fft.min.js"></script>
+    <script src="jsanov/libs/jquery.ajax.arraybuffer.min.js"></script>
+    <script src="jsanov/libs/lame.min.js"></script>
+    <script src="jsanov/wav.js"></script>
+    <script src="jsanov/features.js"></script>
+    <script src="jsanov/audio.js"></script>
+    <script src="jsanov/onlinebeat.js"></script>
+    <script src="jsanov/applemusic.js"></script>
+
+    <script src="shaders.js"></script>
+    <script src="texture.js"></script>
+    <script src="progressbar.js"></script>
+
+    <meta charset="utf-8" />
+</head>
+<body>
+    
+
+    <button class="toggle-audio" style="display:block">&#9660; Step 1: Choose Tune 🎵</button>
+    <div class="audioTable" id="audioTable">
+        <table>
+            <tr>
+                <td colspan="4">
+                    <div id = "appleMusicDiv"></div>
+                </td>
+            </tr>
+            <tr>
+                <td><b>Upload Tune:</b> <input type = "file" id = "tuneInput"></td>
+            </tr>
+        </table>
+    </div>
+
+    <table id="pageStatusWrapper">
+        <tr>
+            <td><span id="pagestatus"><h4>😱Welcome to the audio visualizer!🙀  Choose a tune 🎵 to start</h4></span></td>
+        </tr>
+    </table>
+
+        <audio controls id="audioPlayer" style="width: 80%;">
+            Your browser does not support the audio element.
+        </audio> 
+        
+        
+    <canvas id="MainGLCanvas" style="border: none;" width="800" height="800"></canvas>
+    </table>
+
+    <script>
+        let shader = new MusicVizShader("pictures/cats.jpg");
+    </script>
+
+
+<!-- Footer -->
+<footer id="footer">
+    <div class="inner">
+        <section>
+            
+        </section>
+        <ul class="copyright">
+            <li>Design: <a href="http://html5up.net">HTML5 UP</a>.</li> 
+        </ul>
+    </div>
+</footer>
+
+</body>
+</html>
