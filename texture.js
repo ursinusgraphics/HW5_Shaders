@@ -408,6 +408,7 @@ class MusicVizShader extends TextureShader {
             shader.uNovUniform = gl.getUniformLocation(shader, "uNov");
             shader.uRampUniform = gl.getUniformLocation(shader, "uRamp");
             shader.uActivationUniform = gl.getUniformLocation(shader, "uActivation");
+            shader.uTuneTimeUniform = gl.getUniformLocation(shader, "uTuneTime");
             // Extract the position buffer and store it in the shader object
             shader.positionLocation = gl.getAttribLocation(shader, "a_position");
             gl.enableVertexAttribArray(shader.positionLocation);
@@ -441,6 +442,7 @@ class MusicVizShader extends TextureShader {
         gl.uniform1f(shader.uTimeUniform, this.time);
         gl.uniform2fv(shader.uCenterUniform, this.centervec);
         gl.uniform1f(shader.uScaleUniform, this.scale);
+        gl.uniform1f(shader.uTuneTimeUniform, this.audioPlayer.currentTime);
         let idx = 0;
         if (this.audioReady) {
             idx = Math.floor(this.audioPlayer.currentTime*this.audio.sr/this.hop);

@@ -12,6 +12,8 @@ uniform sampler2D uSampler;
 uniform float uNov; // Related to the amount of spectral change over time
 uniform float uRamp; // Roughly correlated to beat tracking up and down
 uniform float uActivation; // Roughly correlated to beat clap probability
+uniform float uTime; // System time
+uniform float uTuneTime; // Time we are in the tune (in seconds)
 
 /**
  * Compute the intensity of a color pixel
@@ -26,5 +28,5 @@ void main() {
     float y1 = v_texture.y;
     vec4 I1 = texture2D(uSampler, vec2(x1, y1)); // Texture sampling (you don't have to use this)
     gl_FragColor = I1;
-    gl_FragColor[0] = uActivation; // TODO: This changes the red channel to the beat.  Please do something more exciting than this
+    gl_FragColor[0] = 0.5*(1.0 + cos(uTuneTime)); // TODO: This changes the red channel to the beat.  Please do something more exciting than this
 }
